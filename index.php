@@ -35,6 +35,8 @@
 	$dir = 'faces';
 	$files = scandir($dir);
 	
+	shuffle($files);
+	
 	$facesPerID = [];
 	
 	
