@@ -22,12 +22,12 @@
 	}
 	
 	define("PROFILES", [
-		"R" => "#FA8EC3",
-		"L" => "#FAA771",
-		"M" => "#D590F5",
-		"J" => "#540004",
-		"C" => "#FFEDAA",
-		"B" => "#99B9C2"
+		"R" => "#ffdaf5",
+		"L" => "#ffeeda",
+		"M" => "#f3daff",
+		"J" => "#db9393",
+		"C" => "#ffffda",
+		"B" => "#dafffe"
 	]);
 	
 
@@ -38,9 +38,10 @@
 	$facesPerID = [];
 	
 	
-	define("RANDOM_FACE", $dir."/".array_rand(array_filter($files, "isValid")));
+	define("RANDOM_FACE", $dir."/".$files[array_rand(array_filter($files, "isValid"))]);
 	define("TITLE", "US MAGNIFICENT BEASTS");
 	define("DESCRIPTION", "No one quite stands out like us shapeshifters");
+	
 	
 	foreach($files as $file){
 		
