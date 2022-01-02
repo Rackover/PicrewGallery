@@ -1,0 +1,68 @@
+const fs = require('fs');
+const path = require('path');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const { Client, Intents } = require("discord.js");
+const client = new Client({
+  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
+});
+
+const token = process.env.TOKEN;
+
+const rest = new REST({ version: '9' }).setToken(token);
+
+let commands = {};
+
+fs.readdirSync("commands").forEach(file => {
+	const cmdName = path.basename(file).toLowerCase().substring(0, file.length-3);
+	commands[cmdName] = require("./commands/"+file.substring(0, file.length-3));
+	console.log("Loaded command "+cmdName);
+	
+	if (!commands[cmdName].execute)
+	{
+		throw new Exception();
+	}
+});
+
+client.on("ready", async () => {
+	console.log("Picrew scribe ready and logged in");
+	
+	const guilds = await client.guilds.fetch();
+	
+	for (const [key, value] of guilds)
+	{
+		const guildId = value.id;
+		
+		const cmds = Object.keys(commands).map(
+				function(key){
+					const item = commands[key];
+					return {
+						description: key,
+						name: key
+					};
+				});
+		
+		await rest.put(
+			Routes.applicationGuildCommands(client.user.id, guildId),
+			{
+				body: cmds 
+			},
+		);
+	}
+});
+
+
+client.on('interactionCreate', async interaction => {
+	
+	if (!interaction.isCommand()) return;
+
+	const { commandName } = interaction;
+
+	if (commandName && commands[commandName.toLowerCase()])
+	{
+		const command = commands[commandName.toLowerCase()];
+		await command.execute(client, interaction);
+	}
+});
+
+client.login(token);
