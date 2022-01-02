@@ -37,8 +37,8 @@ module.exports = {
 							
 							if (!isNaN(id)){
 								// All good
-								await processImage(id, initial, attachment);			
-								processed++;
+								const ok = await processImage(id, initial, attachment);	
+								if (ok) processed++;							
 								break;								
 							}					
 						}
@@ -53,8 +53,8 @@ module.exports = {
 							const initial = message.content[0].toUpperCase();
 							
 							console.log("Processing composite image "+id+":"+initial+" (from attachment name "+attachment.name+")");
-							await processImage(id, initial, attachment);			
-							processed++;							
+							const ok = await processImage(id, initial, attachment);			
+							if (ok) processed++;							
 							break;
 						}
 					}
@@ -73,11 +73,11 @@ async function processImage(id, initial, attachment)
 {
 	const folder = "../faces";
 	
-	const exists = false;
+	const exists = fs.existsSync("../faces/"+id+"-"+initial+".png");
 	
 	if (exists)
 	{
-		
+		console.log("Already exists!");
 	}
 	else
 	{
@@ -87,11 +87,14 @@ async function processImage(id, initial, attachment)
 			response.pipe(file);
 			
 			console.log("Downloaded file "+id+" initial "+initial+"");
+			return true;
 		}
 		catch (e){
 			console.log(e);
 		}
 	}
+	
+	return false;
 }
 
 function doRequest(url) {
