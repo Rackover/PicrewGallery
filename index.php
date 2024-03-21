@@ -21,7 +21,7 @@
 
 	function isValid($file){
 		if (startsWith($file, ".")) return false;
-		if (!endsWith(strtolower($file), ".png") || !endsWith(strtolower($file), ".gif")) return false;
+		if (!endsWith(strtolower($file), ".png") && !endsWith(strtolower($file), ".gif")) return false;
 		return true;
 	}
 	
