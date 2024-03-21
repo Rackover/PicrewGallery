@@ -1,0 +1,7 @@
+# Deny access to hidden files - files that start with a dot (.)
+<FilesMatch "^\.">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+RedirectMatch 403 /\.git

@@ -25,9 +25,11 @@
 		"R" => "#ffdaf5",
 		"L" => "#ffeeda",
 		"M" => "#f3daff",
-		"J" => "#db9393",
+		// "J" => "#db9393",
 		"C" => "#ffffda",
-		"B" => "#dafffe"
+		"B" => "#dafffe",
+		"N" => "#acabff",
+		"A" => "#c2caed"
 	]);
 	
 
@@ -61,7 +63,10 @@
 			$facesPerID[$number] = [];
 		}
 		
-		$facesPerID[$number][$initial] = $dir."/".$file;
+		if (in_array($initial, array_keys(PROFILES)))
+		{		
+			$facesPerID[$number][$initial] = $dir."/".$file;
+		}
 	}
 
 ?>
@@ -101,7 +106,8 @@
 			
 			function focusOnImage(url)
 			{
-				zoomedPictureBox.style.backgroundImage = "url("+url+")";
+				// zoomedPictureBox.style.backgroundImage = "url("+url+")";
+				zoomedPictureBox.src = url;
 				zoomedContainer.style.display = "";
 				
 				const matches = /faces\/([0-9]*)\-[A-Z]\.png/gi.exec(url);
@@ -127,11 +133,11 @@
 		
 		<div class="imageList">
 			<?php
-				foreach($facesPerID as $faceRow)
+				foreach($facesPerID as $id=>$faceRow)
 				{
 					?>
 					
-					<div class="imageRow">
+					<div class="imageRow" id="row-<?php echo $id; ?>">
 					
 					<?php
 					foreach(PROFILES as $profileInitial => $color)
@@ -180,9 +186,9 @@
 		
 		<div id="zoomedPictureContainer" onclick="unFocus()" style="display:none">
 			<a href="">
-				<div id="zoomedPictureBox">
+				<img id="zoomedPictureBox">
 				
-				</div>
+				</img>
 			</a>
 		</div>
 	</body>

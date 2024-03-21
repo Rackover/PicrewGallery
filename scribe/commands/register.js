@@ -16,51 +16,59 @@ module.exports = {
 		{
 			if (message.attachments.size <= 0) continue; // No attached Image
 			
-			console.log("Working on message "+message.id+"...");
+			console.log("Working on message "+message.id+" by "+message.author.username+"...");
 			
 			for (const [_2, attachment] of message.attachments){
 				
-				if (attachment.name && attachment.name.endsWith(".png"))
+				if (attachment.name)
 				{
-					// It's a valid image
-					
-					if (attachment.name.indexOf("-") > -1)
+					if ( attachment.name.toLowerCase().endsWith(".png"))
 					{
-						// Already valid maybe
-						const parts = attachment.name.split("-");
-						
-						if (parts.length == 2){
-							const id = parseInt(parts[0]);
-							const initial = parts[1][0];
+					// It's a valid image
+						if (attachment.name.indexOf("-") > -1)
+						{
+							// Already valid maybe
+							const parts = attachment.name.split("-");
 							
-							console.log("Processing well-formed image "+id+":"+initial+" (from attachment name "+attachment.name+")");
+							if (parts.length == 2){
+								const id = parseInt(parts[0]);
+								const initial = parts[1][0];
+								
+								console.log("Processing well-formed image "+id+":"+initial+" (from attachment name "+attachment.name+")");
+								
+								if (!isNaN(id)){
+									// All good
+									const ok = await processImage(id, initial, attachment);	
+									if (ok) processed++;							
+									break;								
+								}					
+							}
+						}
+						else
+						{
+							const reducedName = attachment.name.substring(0, attachment.name.length - 4);
+							const id = parseInt(reducedName.split('_')[0]);
 							
-							if (!isNaN(id)){
-								// All good
-								const ok = await processImage(id, initial, attachment);	
+							if (!isNaN(id) && message.content.length > 0)
+							{
+								const initial = message.content[0].toUpperCase();
+								
+								console.log("Processing composite image "+id+":"+initial+" (from attachment name "+attachment.name+")");
+								const ok = await processImage(id, initial, attachment);			
 								if (ok) processed++;							
-								break;								
-							}					
+								break;
+							}
 						}
 					}
 					else
 					{
-						const reducedName = attachment.name.substring(0, attachment.name.length - 4);
-						const id = parseInt(reducedName.split('_')[0]);
-						
-						if (!isNaN(id) && message.content.length > 0)
-						{
-							const initial = message.content[0].toUpperCase();
-							
-							console.log("Processing composite image "+id+":"+initial+" (from attachment name "+attachment.name+")");
-							const ok = await processImage(id, initial, attachment);			
-							if (ok) processed++;							
-							break;
-						}
+					console.log(`Skipping attachment ${attachment.name} (bad format)`);
 					}
-					
 				}
-				
+				else
+				{
+					console.log(`Skipping attachment ${attachment.name} (bad name)`);
+				}
 			}
 		}
 		
