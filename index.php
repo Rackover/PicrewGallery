@@ -21,7 +21,7 @@
 
 	function isValid($file){
 		if (startsWith($file, ".")) return false;
-		if (!endsWith(strtolower($file), ".png")) return false;
+		if (!endsWith(strtolower($file), ".png") || !endsWith(strtolower($file), ".gif")) return false;
 		return true;
 	}
 	
@@ -39,21 +39,27 @@
 
 			
 	$dir = 'faces';
+	
+	if (!is_dir($dir))
+	{
+		mkdir($dir);
+	}
+	
 	$files = scandir($dir);
 	
 	shuffle($files);
 	
 	$facesPerID = [];
 	
+	// Remove invalid faces
+	$validFaces = array_filter($files, "isValid");
 	
-	define("RANDOM_FACE", $dir."/".$files[array_rand(array_filter($files, "isValid"))]);
+	define("RANDOM_FACE", count($validFaces) == 0 ? "" : $dir."/".$validFaces[array_rand($validFaces)]);
 	define("TITLE", "US MAGNIFICENT BEASTS");
 	define("DESCRIPTION", "No one quite stands out like us shapeshifters");
 	
 	
-	foreach($files as $file){
-		
-		if (!isValid($file)) continue;
+	foreach($validFaces as $file){
 		
 		$parts = explode("-", $file);
 		
@@ -114,7 +120,7 @@
 				zoomedPictureBox.src = url;
 				zoomedContainer.style.display = "";
 				
-				const matches = /faces\/([0-9]*)\-[A-Z]\.png/gi.exec(url);
+				const matches = /faces\/([0-9]*)\-[A-Z]\.[a-z]{3}/gi.exec(url);
 				
 				const id = matches[1];
 				
