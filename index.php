@@ -217,7 +217,7 @@
 				{
 					?>
 					
-					<button onclick="sortForMissingColumn('<?php echo $profileInitial; ?>');">🔳</button>
+					<button onclick="sortForMissingColumn('<?php echo $profileInitial; ?>');">☐</button>
 					
 					<?php
 				}
