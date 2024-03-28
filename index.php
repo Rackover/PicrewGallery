@@ -3,6 +3,11 @@
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 	error_reporting(E_ALL);
+	
+	define("ALLOWED_IMAGE_EXT", [".gif", ".png"]);
+	define("ALLOWED_VIDEO_EXT", []); // HTML5 doesn't support lazy loading yet for videos? huh
+	
+	define("ALLOWED_EXT", array_merge(ALLOWED_IMAGE_EXT, ALLOWED_VIDEO_EXT));
 
 	function startsWith ($string, $startString)
 	{
@@ -19,10 +24,23 @@
 		return (substr($string, -$len) === $endString);
 	}
 
+	function isImage($string)
+	{
+		
+	}
+
 	function isValid($file){
 		if (startsWith($file, ".")) return false;
-		if (!endsWith(strtolower($file), ".png") && !endsWith(strtolower($file), ".gif")) return false;
-		return true;
+		
+		foreach(ALLOWED_EXT as $ext)
+		{
+			if (endsWith(strtolower($file), $ext))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	define("PROFILES", [
@@ -128,6 +146,54 @@
 				console.log("focus on "+url+" background image is "+zoomedPictureBox.style.backgroundImage );
 			}
 			
+			function sortForMissingColumn(initial)
+			{
+				const ul = document.getElementById("imageList");
+				const children =  [...ul.children];
+				
+				children.sort(
+					function (a,b) { 
+						const aAtom = a.querySelector(".atom-"+initial);
+						const aHasImage = aAtom.childNodes[1].childNodes[1].className === "missingPicrew";
+						
+						const bAtom = b.querySelector(".atom-"+initial);
+						const bHasImage = bAtom.childNodes[1].childNodes[1].className === "missingPicrew";
+						
+						if (bHasImage && !aHasImage) return 1;
+						if (aHasImage && !bHasImage) return -1;
+						return 0;
+					}
+				);
+				
+				for (let i = 0; i <children.length; i++) {
+					ul.appendChild(children[i]);
+				}
+			}
+			
+			function randomizeColumns()
+			{
+				const ul = document.getElementById("imageList");
+				for (let i = ul.children.length; i >= 0; i--) {
+					ul.appendChild(ul.children[Math.random() * i | 0]);
+				}
+			}
+			
+			let inverseSort = false;
+
+			function sortById()
+			{
+				const ul = document.getElementById("imageList");
+				const children =  [...ul.children];
+				
+				children.sort(function (a,b){ return a.id.localeCompare(b.id) * (inverseSort ? -1 : 1);});
+				
+				for (let i = 0; i <children.length; i++) {
+					ul.appendChild(children[i]);
+				}
+				
+				inverseSort = !inverseSort;
+			}
+			
 			window.onload = ()=>
 			{
 				zoomedContainer = document.getElementById("zoomedPictureContainer");
@@ -140,8 +206,26 @@
 	<body>
 
 		<h1><?php echo TITLE;?></h1>
+		<div  style="display:flex;flex-direction:row;justify-content:center;flex-grow:0;margin:1vw;gap:12px;">
+			<button onclick="randomizeColumns();">🎲</button>
+			<button onclick="sortById();">⬆⬇</button>
+		</div>
+		<div style="display:flex;flex-direction:row;justify-content:space-around;flex-grow:1;margin:1vw;padding:24px;padding-bottom:0px;padding-top:0px;">
 		
-		<div class="imageList">
+			<?php 
+				foreach(PROFILES as $profileInitial => $_)
+				{
+					?>
+					
+					<button onclick="sortForMissingColumn('<?php echo $profileInitial; ?>');">🔳</button>
+					
+					<?php
+				}
+			?>
+		</div>	
+		<div id="imageList" class="imageList">
+		
+		
 			<?php
 				foreach($facesPerID as $id=>$faceRow)
 				{
@@ -154,7 +238,7 @@
 					{
 						?>
 						
-						<div class="picrewColumnAtom" style="background-color:<?php echo $color; ?>;">
+						<div class="picrewColumnAtom atom-<?php echo $profileInitial; ?>" style="background-color:<?php echo $color; ?>;">
 							<div class="picrewContainer">
 						
 						<?php
